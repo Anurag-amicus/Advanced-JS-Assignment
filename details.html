@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="description"
+        content="GitHub user details"
+    >
+
+    <title>User Details</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container">
+            <h1>GitHub User Details</h1>
+            <p>View followers and repositories for a GitHub user.</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Back Navigation -->
+        <nav class="back-navigation" aria-label="Back navigation">
+            <a href="index.html" class="btn btn-secondary">
+                ← Back to Users
+            </a>
+        </nav>
+
+        <!-- Error Message -->
+        <div
+            id="error-message"
+            class="message message-error hidden"
+            role="alert"
+        >
+            Could not load user details. Please try again later.
+        </div>
+
+        <!-- Loading Skeleton -->
+        <section
+            id="details-skeleton"
+            class="details-skeleton"
+            aria-label="Loading user details"
+        >
+
+            <div class="profile-skeleton">
+                <div class="skeleton-avatar"></div>
+
+                <div class="skeleton-content">
+                    <div class="skeleton-line skeleton-title"></div>
+                    <div class="skeleton-line"></div>
+                </div>
+            </div>
+
+            <div class="details-grid">
+
+                <div class="skeleton-panel"></div>
+
+                <div class="skeleton-panel"></div>
+
+            </div>
+
+        </section>
+
+        <!-- User Details -->
+        <section id="user-details" class="hidden">
+
+            <!-- User Profile -->
+            <section class="profile-card" aria-labelledby="user-name">
+
+                <img
+                    id="user-avatar"
+                    src=""
+                    alt=""
+                    class="profile-avatar"
+                >
+
+                <div class="profile-info">
+                    <h2 id="user-name">User</h2>
+
+                    <p>
+                        <strong>ID:</strong>
+                        <span id="user-id">-</span>
+                    </p>
+                </div>
+
+            </section>
+
+            <!-- Followers & Repositories -->
+            <div class="details-grid">
+
+                <!-- Followers -->
+                <section
+                    class="details-card"
+                    aria-labelledby="followers-heading"
+                >
+
+                    <h2 id="followers-heading">
+                        Followers
+                    </h2>
+
+                    <ul id="followers-list" class="user-list">
+                        <!-- Followers rendered here -->
+                    </ul>
+
+                </section>
+
+                <!-- Repositories -->
+                <section
+                    class="details-card"
+                    aria-labelledby="repositories-heading"
+                >
+
+                    <h2 id="repositories-heading">
+                        Repositories
+                    </h2>
+
+                    <ul id="repositories-list" class="repository-list">
+                        <!-- Repositories rendered here -->
+                    </ul>
+
+                </section>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>GitHub Users Explorer</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/details.js"></script>
+
+</body>
+</html>

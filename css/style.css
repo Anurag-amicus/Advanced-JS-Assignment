@@ -1,0 +1,970 @@
+/* ========================================
+   Reset
+======================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+    background: #f5f7fa;
+    color: #1f2937;
+}
+
+
+/* ========================================
+   Layout
+======================================== */
+
+.container {
+    width: min(1100px, calc(100% - 2rem));
+    margin-inline: auto;
+}
+
+main.container {
+    padding-block: 2rem;
+}
+
+
+/* ========================================
+   Header
+======================================== */
+
+.site-header {
+    background: #24292f;
+    color: white;
+    padding: 3rem 0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.eyebrow,
+.section-label {
+    margin-bottom: 0.35rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.site-header .eyebrow {
+    color: #9ca3af;
+}
+
+.site-header h1 {
+    margin-bottom: 0.5rem;
+    font-size: 2.25rem;
+}
+
+.header-description {
+    max-width: 650px;
+    color: #d1d5db;
+}
+
+
+/* ========================================
+   Overview
+======================================== */
+
+.overview-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.overview-icon {
+    display: grid;
+    place-items: center;
+
+    width: 48px;
+    height: 48px;
+
+    background: #f1f5f9;
+    border-radius: 10px;
+
+    font-size: 1.4rem;
+}
+
+.overview-card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.15rem;
+}
+
+.overview-card p {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.overview-card strong {
+    margin-left: auto;
+    font-size: 2rem;
+}
+
+
+/* ========================================
+   Filter
+======================================== */
+
+.filter-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-header {
+    margin-bottom: 1.5rem;
+}
+
+.filter-header h2 {
+    margin-bottom: 0.25rem;
+}
+
+.filter-header p:last-child {
+    color: #6b7280;
+}
+
+
+.filter-controls {
+    display: flex;
+    align-items: end;
+    gap: 1rem;
+
+    padding-bottom: 1.5rem;
+}
+
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+
+    padding: 0.7rem 0.8rem;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: 2px solid #0969da;
+    outline-offset: 1px;
+}
+
+
+/* ========================================
+   Filter Result
+======================================== */
+
+.filter-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-top: 1.25rem;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+.filter-result-label {
+    font-weight: 700;
+}
+
+.filter-result p {
+    margin-top: 0.2rem;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.filter-result strong {
+    font-size: 1.75rem;
+}
+
+/* ========================================
+   Buttons
+======================================== */
+
+.btn {
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: opacity 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: #0969da;
+    color: white;
+}
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+
+/* ========================================
+   Statistics
+======================================== */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1.25rem;
+}
+
+.stat-label {
+    display: block;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.stat-card strong {
+    font-size: 1.75rem;
+}
+
+
+/* ========================================
+   Section
+======================================== */
+
+.users-section {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.section-header h2 {
+    font-size: 1.25rem;
+}
+
+
+/* ========================================
+   Table
+======================================== */
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table th {
+    background: #f9fafb;
+    font-weight: 700;
+}
+
+.users-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-login {
+    font-weight: 600;
+}
+
+
+/* ========================================
+   Messages
+======================================== */
+
+.message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.message-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.message-info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+
+
+/* ========================================
+   Loading Skeleton
+======================================== */
+
+.loading-container {
+    padding: 1rem;
+}
+
+.skeleton-row {
+    height: 65px;
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        #e5e7eb 25%,
+        #f3f4f6 50%,
+        #e5e7eb 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+
+/* ========================================
+   Pagination
+======================================== */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+#page-info {
+    font-weight: 600;
+}
+
+
+/* ========================================
+   Details Page
+======================================== */
+
+.back-navigation {
+    margin-bottom: 1.5rem;
+}
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-info h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.details-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.details-card h2 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.user-list,
+.repository-list {
+    list-style: none;
+}
+
+.user-list li,
+.repository-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.user-list li:last-child,
+.repository-list li:last-child {
+    border-bottom: none;
+}
+
+
+/* ========================================
+   Details Skeleton
+======================================== */
+
+.profile-skeleton {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    animation: pulse 1.5s infinite;
+}
+
+.skeleton-content {
+    flex: 1;
+}
+
+.skeleton-line {
+    width: 60%;
+    height: 16px;
+    margin-bottom: 0.75rem;
+    border-radius: 4px;
+    background: #e5e7eb;
+    animation: pulse 1.5s infinite;
+}
+
+.skeleton-title {
+    width: 35%;
+    height: 24px;
+}
+
+.skeleton-panel {
+    height: 250px;
+    border-radius: 10px;
+    background: #e5e7eb;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+
+/* ========================================
+   Footer
+======================================== */
+
+.site-footer {
+    margin-top: 3rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    color: #6b7280;
+}
+
+
+/* ========================================
+   Utility
+======================================== */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* ========================================
+   Responsive
+======================================== */
+
+@media (max-width: 700px) {
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .form-group input {
+        width: 100%;
+    }
+
+    .profile-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: 0.75rem;
+    }
+
+}
+
+/* ========================================
+   User Rows
+======================================== */
+
+.user-row {
+    cursor: pointer;
+}
+
+.user-row:hover {
+    background: #f8fafc;
+}
+
+.user-row:focus-within {
+    background: #f8fafc;
+}
+
+.mobile-details-button {
+    display: none;
+}
+
+.user-id {
+    color: #4b5563;
+}
+
+
+/* ========================================
+   Mobile User Cards
+======================================== */
+
+@media (max-width: 700px) {
+
+    .users-table,
+    .users-table tbody {
+        display: block;
+    }
+
+    .users-table thead {
+        display: none;
+    }
+
+    .users-table tbody {
+        padding: 1rem;
+    }
+
+    .users-table tr.user-row {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-areas:
+            "avatar login"
+            "avatar id"
+            "avatar action";
+
+        gap: 0.25rem 1rem;
+
+        margin-bottom: 1rem;
+        padding: 1rem;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+
+        background: white;
+    }
+
+    .users-table tr.user-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .users-table td {
+        display: block;
+        padding: 0;
+        border: none;
+    }
+
+    .users-table td:nth-child(1) {
+        grid-area: avatar;
+        align-self: start;
+    }
+
+    .users-table td:nth-child(2) {
+        grid-area: login;
+        align-self: end;
+    }
+
+    .users-table td:nth-child(3) {
+        grid-area: id;
+        align-self: start;
+    }
+
+    .users-table td:nth-child(3)::before {
+        content: "ID: ";
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    .user-login {
+        font-size: 1.05rem;
+    }
+
+    .mobile-details-button {
+        display: inline-block;
+        margin-top: 0.75rem;
+    }
+
+}/* ========================================
+   Details Page
+======================================== */
+
+.back-navigation {
+    margin-bottom: 1.5rem;
+}
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 3px solid #e5e7eb;
+}
+
+.profile-info h2 {
+    margin-bottom: 0.35rem;
+    font-size: 1.75rem;
+}
+
+.profile-info p {
+    color: #6b7280;
+}
+
+.profile-info strong {
+    color: #374151;
+}
+
+
+/* ========================================
+   Details Grid
+======================================== */
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.details-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.details-card h2 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+
+/* ========================================
+   Followers
+======================================== */
+
+.user-list,
+.repository-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.user-list li,
+.repository-list li {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.user-list li:first-child,
+.repository-list li:first-child {
+    padding-top: 0;
+}
+
+.user-list li:last-child,
+.repository-list li:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.detail-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.detail-user-avatar {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.detail-user div {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-user span {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+
+/* ========================================
+   Repository
+======================================== */
+
+.repository-list strong {
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.repository-list p {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+
+/* ========================================
+   Empty List
+======================================== */
+
+.empty-list-item {
+    color: #6b7280;
+    font-style: italic;
+}
+
+
+/* ========================================
+   Details Skeleton
+======================================== */
+
+.details-skeleton {
+    display: block;
+}
+
+.profile-skeleton {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-avatar {
+    width: 100px;
+    height: 100px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: #e5e7eb;
+
+    animation: pulse 1.5s infinite;
+}
+
+.skeleton-content {
+    flex: 1;
+}
+
+.skeleton-line {
+    width: 60%;
+    height: 16px;
+
+    margin-bottom: 0.75rem;
+
+    border-radius: 4px;
+    background: #e5e7eb;
+
+    animation: pulse 1.5s infinite;
+}
+
+.skeleton-title {
+    width: 35%;
+    height: 24px;
+}
+
+.skeleton-panel {
+    height: 250px;
+
+    border-radius: 12px;
+    background: #e5e7eb;
+
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+
+/* ========================================
+   Responsive Details
+======================================== */
+
+@media (max-width: 700px) {
+
+    .profile-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .profile-info h2 {
+        font-size: 1.5rem;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .details-card {
+        padding: 1.25rem;
+    }
+
+    .profile-skeleton {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .skeleton-avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+}

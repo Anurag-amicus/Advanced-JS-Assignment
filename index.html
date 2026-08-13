@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Browse and filter GitHub users"
+    >
+
+    <title>GitHub Users</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="container header-content">
+            <div>
+                <p class="eyebrow">GitHub Explorer</p>
+                <h1>GitHub Users</h1>
+                <p class="header-description">
+                    Browse GitHub users and explore their followers and repositories.
+                </p>
+            </div>
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <!-- Total fetched users -->
+        <section class="overview-card" aria-labelledby="overview-heading">
+
+            <div class="overview-icon" aria-hidden="true">
+                👥
+            </div>
+
+            <div>
+                <h2 id="overview-heading">Users Fetched</h2>
+                <p>
+                    Total users received from the GitHub API
+                </p>
+            </div>
+
+            <strong id="fetched-count">0</strong>
+
+        </section>
+
+
+        <!-- Filter -->
+        <section class="filter-card" aria-labelledby="filter-heading">
+
+            <div class="filter-header">
+                <div>
+                    <p class="section-label">Filter</p>
+
+                    <h2 id="filter-heading">
+                        Find Users
+                    </h2>
+
+                    <p>
+                        Filter the fetched users by minimum login length.
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="filter-controls">
+
+                <div class="form-group">
+                    <label for="login-length">
+                        Minimum login length
+                    </label>
+
+                    <input
+                        type="number"
+                        id="login-length"
+                        name="login-length"
+                        min="4"
+                        value="4"
+                    >
+                </div>
+
+                <button
+                    type="button"
+                    id="apply-filter"
+                    class="btn btn-primary"
+                >
+                    Apply Filter
+                </button>
+
+            </div>
+
+
+            <!-- Filter result -->
+            <div class="filter-result">
+
+                <div>
+                    <span class="filter-result-label">
+                        Users remaining
+                    </span>
+
+                    <p>
+                        Users matching the current filter
+                    </p>
+                </div>
+
+                <strong id="remaining-count">
+                    0
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- Error -->
+        <div
+            id="error-message"
+            class="message message-error hidden"
+            role="alert"
+        >
+            <div>
+                <strong>Could not load users.</strong>
+                <p>Please check your connection and try again.</p>
+            </div>
+
+            <button
+                type="button"
+                id="retry-button"
+                class="btn btn-primary"
+            >
+                Try Again
+            </button>
+        </div>
+
+        <!-- Users -->
+        <section
+            class="users-section"
+            aria-labelledby="users-heading"
+        >
+
+            <div class="section-header">
+
+                <div>
+                    <p class="section-label">Results</p>
+
+                    <h2 id="users-heading">
+                        GitHub Users
+                    </h2>
+                </div>
+
+            </div>
+
+
+            <!-- Loading skeleton -->
+            <div
+                id="loading-skeleton"
+                class="loading-container"
+            >
+
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+
+            </div>
+
+
+            <!-- Table -->
+            <div
+                class="table-wrapper hidden"
+                id="users-container"
+            >
+
+                <table class="users-table">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">User</th>
+                            <th scope="col">Login</th>
+                            <th scope="col">ID</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="users-table-body">
+                        <!-- Users inserted by JavaScript -->
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- Empty state -->
+            <div
+                id="empty-message"
+                class="message message-info hidden"
+            >
+                No users match the selected filter.
+            </div>
+
+        </section>
+
+
+        <!-- Pagination -->
+        <nav
+            class="pagination"
+            aria-label="User pagination"
+            id="pagination"
+        >
+
+            <button
+                type="button"
+                id="previous-page"
+                class="btn btn-secondary"
+                disabled
+            >
+                ← Previous
+            </button>
+
+            <span
+                id="page-info"
+                aria-live="polite"
+            >
+                Page 1
+            </span>
+
+            <button
+                type="button"
+                id="next-page"
+                class="btn btn-secondary"
+                disabled
+            >
+                Next →
+            </button>
+
+        </nav>
+
+    </main>
+
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>GitHub Users Explorer</p>
+        </div>
+    </footer>
+
+
+    <script src="js/api.js"></script>
+    <script src="js/users.js"></script>
+
+</body>
+</html>
