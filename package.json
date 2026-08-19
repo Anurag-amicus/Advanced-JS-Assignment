@@ -1,0 +1,24 @@
+{
+  "name": "advanced-js-assignment",
+  "version": "1.0.0",
+  "description": "Name - Anurag Chandra Technical - AFDP 2026 Path 2",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anurag-amicus/Advanced-JS-Assignment.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Anurag-amicus/Advanced-JS-Assignment/issues"
+  },
+  "homepage": "https://github.com/Anurag-amicus/Advanced-JS-Assignment#readme",
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
