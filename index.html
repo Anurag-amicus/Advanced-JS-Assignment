@@ -62,7 +62,7 @@
                     </h2>
 
                     <p>
-                        Filter the fetched users by minimum login length.
+                        Search the fetched users by username.
                     </p>
                 </div>
             </div>
@@ -71,26 +71,29 @@
             <div class="filter-controls">
 
                 <div class="form-group">
-                    <label for="login-length">
-                        Minimum login length
+                    <label for="user-search">
+                        Search users
                     </label>
 
                     <input
-                        type="number"
-                        id="login-length"
-                        name="login-length"
-                        min="4"
-                        value="4"
+                        type="search"
+                        id="user-search"
+                        name="user-search"
+                        placeholder="Search by username"
                     >
                 </div>
+                
+                <div class="form-group">
+                    <label for="sort-order">
+                        Sort by
+                    </label>
 
-                <button
-                    type="button"
-                    id="apply-filter"
-                    class="btn btn-primary"
-                >
-                    Apply Filter
-                </button>
+                    <select id="sort-order" name="sort-order">
+                        <option value="relevance">Sort by relevance</option>
+                        <option value="asc">Sort by login A → Z</option>
+                        <option value="desc">Sort by login Z → A</option>
+                    </select>
+                </div>
 
             </div>
 
@@ -100,11 +103,11 @@
 
                 <div>
                     <span class="filter-result-label">
-                        Users remaining
+                        Users found
                     </span>
 
                     <p>
-                        Users matching the current filter
+                        Users matching the current search
                     </p>
                 </div>
 
@@ -201,7 +204,7 @@
                 id="empty-message"
                 class="message message-info hidden"
             >
-                No users match the selected filter.
+                No users match the current search.
             </div>
 
         </section>

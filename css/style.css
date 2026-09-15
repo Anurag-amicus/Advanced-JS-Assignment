@@ -968,3 +968,157 @@ main.container {
     }
 
 }
+
+/* ========================================
+   Repository Rows
+======================================== */
+
+.repository-row {
+    cursor: default;
+}
+
+.repository-name {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.repository-description {
+    max-width: 500px;
+    color: #6b7280;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.repository-owner {
+    font-weight: 600;
+}
+
+.repository-stars,
+.repository-language {
+    color: #4b5563;
+}
+
+.github-button {
+    white-space: nowrap;
+}
+
+/* ========================================
+   Mobile Repository Cards
+======================================== */
+
+@media (max-width: 700px) {
+
+    .repositories-table,
+    .repositories-table tbody {
+        display: block;
+    }
+
+    .repositories-table thead {
+        display: none;
+    }
+
+    .repositories-table tbody {
+        padding: 1rem;
+    }
+
+    .repositories-table tr.repository-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+
+        margin-bottom: 1rem;
+        padding: 1rem;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+
+        background: white;
+    }
+
+    .repositories-table tr.repository-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .repositories-table td {
+        display: block;
+        padding: 0;
+        border: none;
+    }
+
+    .repositories-table td:nth-child(2)::before {
+        content: "Owner: ";
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .repositories-table td:nth-child(3)::before {
+        content: "Stars: ";
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .repositories-table td:nth-child(4)::before {
+        content: "Language: ";
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .repository-name {
+        font-size: 1.05rem;
+    }
+
+    .repository-description {
+        max-width: none;
+        margin-bottom: 0.5rem;
+    }
+
+    .repositories-table td:nth-child(5) {
+        margin-top: 0.5rem;
+    }
+
+    .github-button {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.form-group select {
+    width: 100%;
+
+    padding: 0.7rem 2.5rem 0.7rem 0.8rem;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+
+    background-color: white;
+    color: #1f2937;
+
+    font-size: 1rem;
+    font-family: inherit;
+
+    cursor: pointer;
+
+    appearance: none;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    background-size: 1rem;
+}
+
+.form-group select:focus {
+    outline: 2px solid #0969da;
+    outline-offset: 1px;
+    border-color: #0969da;
+}
+
+.form-group select:hover {
+    border-color: #94a3b8;
+}
+
+.form-group select:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

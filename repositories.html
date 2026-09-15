@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Search and explore GitHub repositories"
+    >
+
+    <title>GitHub Repositories</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="container header-content">
+
+            <div>
+                <p class="eyebrow">GitHub Explorer</p>
+
+                <h1>GitHub Repositories</h1>
+
+                <p class="header-description">
+                    Search GitHub repositories and explore them on GitHub.
+                </p>
+            </div>
+
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <!-- Search -->
+        <section
+            class="filter-card"
+            aria-labelledby="repository-search-heading"
+        >
+
+            <div class="filter-header">
+
+                <div>
+
+                    <p class="section-label">
+                        Search
+                    </p>
+
+                    <h2 id="repository-search-heading">
+                        Find Repositories
+                    </h2>
+
+                    <p>
+                        Search GitHub repositories by name or keyword.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form id="repository-search-form">
+                <div class="filter-controls">
+
+                    <div class="form-group">
+
+                        <label for="repository-search">
+                            Search repositories
+                        </label>
+
+                        <input
+                            type="search"
+                            id="repository-search"
+                            name="repository-search"
+                            placeholder="Search repositories"
+                        >
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        id="repository-search-button"
+                        class="btn btn-primary"
+                    >
+                        Search
+                    </button>
+
+                </div>
+            </form>
+            <!-- Search result count -->
+            <div class="filter-result">
+
+                <div>
+
+                    <span class="filter-result-label">
+                        Results found
+                    </span>
+
+                    <p>
+                        Repositories matching the current search
+                    </p>
+
+                </div>
+
+                <strong id="repository-count">
+                    0
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- Error -->
+        <div
+            id="error-message"
+            class="message message-error hidden"
+            role="alert"
+        >
+
+            <div>
+
+                <strong>
+                    Could not load repositories.
+                </strong>
+
+                <p>
+                    Please check your connection and try again.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                id="retry-button"
+                class="btn btn-primary"
+            >
+                Try Again
+            </button>
+
+        </div>
+
+
+        <!-- Repository Results -->
+        <section
+            class="users-section"
+            aria-labelledby="repositories-heading"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <p class="section-label">
+                        Results
+                    </p>
+
+                    <h2 id="repositories-heading">
+                        GitHub Repositories
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <!-- Loading skeleton -->
+            <div
+                id="loading-skeleton"
+                class="loading-container hidden"
+            >
+
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+                <div class="skeleton-row"></div>
+
+            </div>
+
+
+            <!-- Repository Table -->
+            <div
+                class="table-wrapper hidden"
+                id="repositories-container"
+            >
+
+                <table class="users-table repositories-table">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">Repository</th>
+                            <th scope="col">Owner</th>
+                            <th scope="col">Stars</th>
+                            <th scope="col">Language</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="repositories-table-body">
+                        <!-- Repositories inserted by JavaScript -->
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- Empty state -->
+            <div
+                id="empty-message"
+                class="message message-info"
+            >
+                Search for repositories to see results.
+            </div>
+
+        </section>
+
+
+        <!-- Pagination -->
+        <nav
+            class="pagination"
+            aria-label="Repository pagination"
+        >
+
+            <button
+                type="button"
+                id="previous-page"
+                class="btn btn-secondary"
+                disabled
+            >
+                ← Previous
+            </button>
+
+            <span
+                id="page-info"
+                aria-live="polite"
+            >
+                Page 1
+            </span>
+
+            <button
+                type="button"
+                id="next-page"
+                class="btn btn-secondary"
+                disabled
+            >
+                Next →
+            </button>
+
+        </nav>
+
+    </main>
+
+
+    <footer class="site-footer">
+
+        <div class="container">
+
+            <p>
+                GitHub Repositories Explorer
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <script
+        type="module"
+        src="dist/repositories.js"
+    ></script>
+
+</body>
+
+</html>

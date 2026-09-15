@@ -1,6 +1,7 @@
 import { ApiService } from "./services/apiService.js";
-import { transformRepositories, type DisplayRepository, type GitHubFollower, type GitHubRepository } from "./types/github.js";
+import { type DisplayRepository, type GitHubFollower, type GitHubRepository } from "./types/github.js";
 import { getElement } from "./utils/dom.js";
+import { transformRepositories } from "./utils/transformerFunctions.js";
 const params = new URLSearchParams(window.location.search);
 
 const username = params.get("username");
@@ -25,7 +26,7 @@ let repositoryData: GitHubRepository[] = [];
 let followerError: string | undefined;
 let repositoryError: string | undefined;
 
-async function loadUserDetails(apiService: ApiService, username: string | null, id: string | null) {
+async function loadUserDetails(apiService: ApiService, username: string | null, id: string | null) : Promise<void> {
   showLoading();
 
   try {

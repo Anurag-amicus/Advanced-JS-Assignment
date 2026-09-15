@@ -1,6 +1,7 @@
 import { ApiService } from "./services/apiService.js";
-import { DisplayUser, GitHubUser, transformUsers } from "./types/github.js";
+import { DisplayUser } from "./types/github.js";
 import { getElement } from "./utils/dom.js";
+import { transformUsers } from "./utils/transformerFunctions.js";
 
 const fetchedCountElement: HTMLElement = getElement("fetched-count");
 const remainingCountElement: HTMLElement = getElement("remaining-count");
@@ -16,73 +17,105 @@ const previousPageButton: HTMLButtonElement = getElement("previous-page");
 const nextPageButton: HTMLButtonElement = getElement("next-page");
 const pageInfo: HTMLElement = getElement("page-info");
 
-const loginLengthInput: HTMLInputElement = getElement("login-length");
-const applyFilterButton: HTMLButtonElement = getElement("apply-filter");
+const userSearchInput: HTMLInputElement = getElement("user-search");
+const sortOrderSelect: HTMLSelectElement = getElement("sort-order");
 
 const retryButton: HTMLButtonElement = getElement("retry-button");
 
 const apiService = new ApiService();
+let searchTerm = "";
+let sortDirection: "relevance" | "asc" | "desc" = "relevance";
+
+const USERS_PER_PAGE = 30;
 
 let users: DisplayUser[] = [];
 let filteredUsers: DisplayUser[] = [];
 
-const USERS_PER_PAGE = 5;
 let currentPage = 1;
 
-async function loadUsers(apiService: ApiService) {
-  showLoading();
+/*
+ * Stores the cursor required to request each API page.
+ *
+ * Page 1 → undefined
+ * Page 2 → last user ID from page 1
+ * Page 3 → last user ID from page 2
+ * etc.
+ */
+const pageCursors: (number | undefined)[] = [undefined];
 
-  try {
-    const result = await apiService.getUsers();
+async function loadUsers(
+    apiService: ApiService,
+    page: number,
+    since?: number,
+) {
+    showLoading();
 
-    if (result.success) {
-      users = transformUsers(result.data);
-    } else {
-      throw new Error(result.error);
+    try {
+        const result = await apiService.getUsers(since);
+
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+
+        users = transformUsers(result.data);
+
+        currentPage = page;
+
+        fetchedCountElement.textContent = String(users.length);
+
+        applySearchAndSort();
+
+        /*
+         * If GitHub returned 30 users, store the last user's ID.
+         * This ID will be used as the "since" value for the next page.
+         */
+        if (result.data.length === USERS_PER_PAGE) {
+            const lastUser = result.data[result.data.length - 1];
+
+            if (lastUser) {
+                pageCursors[currentPage] = lastUser.id;
+            }
+        }
+
+        updatePagination();
+    } catch (error) {
+        console.error("Error loading users:", error);
+
+        showError();
+    } finally {
+        hideLoading();
     }
-    filteredUsers = users;
-    currentPage = 1;
-    fetchedCountElement.textContent = String(users.length);
-    remainingCountElement.textContent = String(filteredUsers.length);
-    renderUsers(filteredUsers);
-  } catch (error) {
-    console.error("Error loading users:", error);
-
-    showError();
-  } finally {
-    hideLoading();
-  }
 }
 
-retryButton.addEventListener("click", (event: MouseEvent) => {
-  loadUsers(apiService);
+retryButton.addEventListener("click", () => {
+    loadUsers(apiService, currentPage, pageCursors[currentPage - 1]);
 });
 
 function renderUsers(userList: DisplayUser[]) {
-  usersTableBody.innerHTML = "";
+    usersTableBody.innerHTML = "";
 
-  if (userList.length === 0) {
-    emptyMessage.classList.remove("hidden");
-    usersContainer.classList.add("hidden");
-    updatePagination(0);
-    return;
-  }
+    if (userList.length === 0) {
+        emptyMessage.classList.remove("hidden");
+        usersContainer.classList.add("hidden");
+        return;
+    }
 
-  emptyMessage.classList.add("hidden");
-  usersContainer.classList.remove("hidden");
+    emptyMessage.classList.add("hidden");
+    usersContainer.classList.remove("hidden");
 
-  const startIndex = (currentPage - 1) * USERS_PER_PAGE;
-  const endIndex = startIndex + USERS_PER_PAGE;
+    /*
+     * No client-side pagination.
+     *
+     * The API has already returned one batch of up to 30 users,
+     * so we display every user in that batch.
+     */
+    userList.forEach((user) => {
+        const row = document.createElement("tr");
 
-  const usersForCurrentPage = userList.slice(startIndex, endIndex);
+        row.className = "user-row";
+        row.dataset.username = user.login;
 
-  usersForCurrentPage.forEach((user) => {
-    const row = document.createElement("tr");
-
-    row.className = "user-row";
-    row.dataset.username = user.login;
-
-    row.innerHTML = `
+        row.innerHTML = `
             <td data-label="User">
                 <img
                     src="${user.avatar_url}"
@@ -111,90 +144,126 @@ function renderUsers(userList: DisplayUser[]) {
             </td>
         `;
 
-    row.addEventListener("click", (event: MouseEvent) => {
-      if (event.target instanceof Element && event.target.closest("a")) {
-        return;
-      }
-      window.location.href = `details.html?username=${encodeURIComponent(user.login)}&id=${user.id}`;
-    });
+        row.addEventListener("click", (event: MouseEvent) => {
+            if (
+                event.target instanceof Element &&
+                event.target.closest("a")
+            ) {
+                return;
+            }
 
-    usersTableBody.appendChild(row);
-  });
-  updatePagination(userList.length);
+            window.location.href =
+                `details.html?username=${encodeURIComponent(user.login)}&id=${user.id}`;
+        });
+
+        usersTableBody.appendChild(row);
+    });
 }
 
 function showLoading() {
-  loadingSkeleton.classList.remove("hidden");
-  usersContainer.classList.add("hidden");
-  emptyMessage.classList.add("hidden");
-  errorMessage.classList.add("hidden");
-  retryButton.disabled = true;
+    loadingSkeleton.classList.remove("hidden");
+    usersContainer.classList.add("hidden");
+    emptyMessage.classList.add("hidden");
+    errorMessage.classList.add("hidden");
+
+    retryButton.disabled = true;
 }
 
 function hideLoading() {
-  loadingSkeleton.classList.add("hidden");
-  retryButton.disabled = false;
+    loadingSkeleton.classList.add("hidden");
+    retryButton.disabled = false;
 }
 
 function showError() {
-  errorMessage.classList.remove("hidden");
-  usersContainer.classList.add("hidden");
-  emptyMessage.classList.add("hidden");
+    errorMessage.classList.remove("hidden");
+    usersContainer.classList.add("hidden");
+    emptyMessage.classList.add("hidden");
 }
 
-function updatePagination(totalUsers: number) {
-  const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
+function updatePagination() {
+    pageInfo.textContent = `Page ${currentPage}`;
 
-  if (totalPages === 0) {
-    pageInfo.textContent = "Page 0 of 0";
+    /*
+     * Page 1 has no previous page.
+     */
+    previousPageButton.disabled = currentPage === 1;
 
-    previousPageButton.disabled = true;
-    nextPageButton.disabled = true;
-
-    return;
-  }
-
-  pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-
-  previousPageButton.disabled = currentPage === 1;
-  nextPageButton.disabled = currentPage === totalPages;
+    /*
+     * pageCursors[currentPage] contains the cursor needed
+     * to request the next page.
+     *
+     * If it doesn't exist, we don't know of another page yet.
+     */
+    nextPageButton.disabled = pageCursors[currentPage] === undefined;
 }
 
-previousPageButton.addEventListener("click", (event: MouseEvent) => {
-  if (currentPage > 1) {
-    currentPage--;
-    renderUsers(filteredUsers);
-  }
+previousPageButton.addEventListener("click", () => {
+    if (currentPage === 1) {
+        return;
+    }
+
+    const previousPage = currentPage - 1;
+    const previousSince = pageCursors[previousPage - 1];
+
+    loadUsers(
+        apiService,
+        previousPage,
+        previousSince,
+    );
 });
 
-nextPageButton.addEventListener("click", (event: MouseEvent) => {
-  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
+nextPageButton.addEventListener("click", () => {
+    const nextSince = pageCursors[currentPage];
 
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderUsers(filteredUsers);
-  }
+    if (nextSince === undefined) {
+        return;
+    }
+
+    const nextPage = currentPage + 1;
+
+    loadUsers(
+        apiService,
+        nextPage,
+        nextSince,
+    );
 });
 
-function applyFilter() {
-  const minimumLoginLength = Number(loginLengthInput.value);
+function applySearchAndSort() {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-  if (minimumLoginLength < 4) {
-    loginLengthInput.value = String(4);
-    return;
-  }
+    const searchedUsers = users.filter((user) =>
+        user.login.toLowerCase().includes(normalizedSearch),
+    );
 
-  filteredUsers = users.filter(
-    (user) => user.login.length >= minimumLoginLength,
-  );
+    if (sortDirection === "relevance") {
+        filteredUsers = searchedUsers;
+    } else {
+        filteredUsers = [...searchedUsers].sort((a, b) => {
+            if (sortDirection === "asc") {
+                return a.login.localeCompare(b.login);
+            }
 
-  currentPage = 1;
+            return b.login.localeCompare(a.login);
+        });
+    }
 
-  remainingCountElement.textContent = String(filteredUsers.length);
+    remainingCountElement.textContent = String(filteredUsers.length);
 
-  renderUsers(filteredUsers);
+    renderUsers(filteredUsers);
 }
 
-applyFilterButton.addEventListener("click", applyFilter);
+userSearchInput.addEventListener("input", () => {
+    searchTerm = userSearchInput.value;
 
-loadUsers(apiService);
+    applySearchAndSort();
+});
+
+sortOrderSelect.addEventListener("change", () => {
+    sortDirection = sortOrderSelect.value as
+        "relevance" | "asc" | "desc";
+
+    applySearchAndSort();
+});
+
+loadUsers(apiService, 1);
+

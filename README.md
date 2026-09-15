@@ -1,290 +1,168 @@
-# AFDP Advanced JS Assignment
+# AFDP Advanced JavaScript & TypeScript Assignment
 
-Name - Anurag Chandra Technical - AFDP 2026 Path 2
+**Name:** Anurag Chandra\
+**Program:** AFDP 2026 --- Path 2
 
-# GitHub Users Explorer - Advanced JS Assignment
+# GitHub Explorer Enhancement
 
-A frontend JavaScript application that consumes the GitHub Users API to display, filter, paginate, and explore GitHub users.
+A TypeScript-based frontend application that extends the existing GitHub
+Users Explorer with two focused features:
+
+1.  **Users Page --- in-place search and sorting**
+2.  **Repository Search --- GitHub repository search with pagination**
+
+The project uses the GitHub REST API and demonstrates practical
+TypeScript concepts including interfaces, generics, union types,
+nullable types, typed DOM events, immutable data transformation,
+async/await, and loading/empty/error handling.
+
+------------------------------------------------------------------------
 
 ## Features
 
-- Fetch GitHub users on page load.
-- Display fetched and filtered user counts.
-- Filter users by minimum login length.
-- Paginate users with 5 users per page.
-- Responsive desktop table and mobile card layout.
-- View individual user details.
-- Fetch first 5 followers and repositories in parallel.
-- Loading skeletons and user-friendly error handling.
+### Users Page
 
-## Approach
+-   Fetch GitHub users using the existing Users API.
+-   Fetch users in pages of **30** using the GitHub `since` parameter.
+-   Search the currently loaded users by **login**.
+-   Search updates the visible list without making another API request.
+-   Sort the currently visible users by login:
+    -   A → Z
+    -   Z → A
+-   Search and sorting work together.
+-   Pagination fetches the next/previous set of users from the API.
+-   Search and sorting are reapplied to newly fetched users.
+-   Original API data is not mutated.
+-   Clear empty state when no users match the search.
+-   Responsive desktop table and mobile card layout.
+-   User rows support navigation to the details page.
 
-The application was built in separate stages:
+> The assignment originally describes the Users endpoint using `page`.
+> After clarification, pagination for this implementation uses the
+> GitHub `since` parameter while preserving the required page-by-page
+> behaviour.
 
-1. Fetch users from the GitHub API using `async/await`.
-2. Validate the API response and transform the data to only `login`, `id`, and `avatar`.
-3. Store the fetched data and use it for filtering and pagination without making additional API requests.
-4. Render users dynamically based on the current page and filter.
-5. Open a details page for the selected user.
-6. Fetch followers and repositories simultaneously using `Promise.all()`.
-7. Handle loading, empty, and error states throughout the application.
-```text
-    OVERALL DATA FLOW
+### User Details Page
 
-    GitHub API
-        ↓
-    Fetch & Validate
-        ↓
-    Transform Data
-        ↓
-    Fetched Users
-        ↓
-    Filter
-        ↓
-    Filtered Users
-        ↓
-    Pagination
-        ↓
-    Render UI
-        ↓
-    User Details
-        ↓
-    Followers + Repositories
-        ↓
-    Promise.all()
+-   Displays the selected user's login and ID.
+-   Displays the user's avatar.
+-   Fetches the first 5 followers.
+-   Fetches the first 5 repositories.
+-   Followers and repositories are requested independently using
+    `Promise.allSettled()`.
+-   One section can succeed even if the other fails.
+-   Loading skeleton, empty state, and error handling are supported.
+
+### Repository Search Page
+
+-   New `repositories.html` page.
+-   Search GitHub repositories by name or keyword.
+-   Displays:
+    -   Repository name
+    -   Description
+    -   Owner login
+    -   Star count
+    -   Programming language
+    -   View on GitHub link
+-   Uses `page` and `per_page=10` for pagination.
+-   Does not call the API for an empty search query.
+-   Displays an empty-results message when GitHub returns zero items.
+-   Displays API/HTTP errors without rendering partial results.
+-   Handles network failures.
+-   Loading state is always cleared using `finally`.
+-   Repository API data is transformed into a small display model before
+    rendering.
+
+------------------------------------------------------------------------
+
+# Architecture
+
+The application follows a simple separation of responsibilities:
+
+``` text
+                    GitHub REST API
+                          │
+                          ▼
+                    ApiService
+                          │
+                          ▼
+                  Generic apiRequest<T>()
+                          │
+                          ▼
+                  Page / Application Logic
+                     │             │
+                     ▼             ▼
+              Transform Data    DOM Rendering
 ```
 
+For repository search:
 
-## File Structure
+``` text
+Repository Search Form
+        │
+        ▼
+repositories.ts
+        │
+        ▼
+ApiService.searchRepositories()
+        │
+        ▼
+apiRequest<T>()
+        │
+        ▼
+GitHub Repository Search API
+        │
+        ▼
+GitHub response
+        │
+        ▼
+transformRepositorySearchResults()
+        │
+        ▼
+DisplayRepositorySearch[]
+        │
+        ▼
+Render repository rows/cards
+```
 
-```text
+------------------------------------------------------------------------
+
+# Project Structure
+
+``` text
 Advanced JS Assignment/
-│
-├── index.html
-├── details.html
 │
 ├── css/
 │   └── style.css
 │
-├── js/
-│   ├── api.js
-│   ├── users.js
-│   └── details.js
-│
-└── README.md
-```
-
-| File           | Purpose                                                       |
-| -------------- | ------------------------------------------------------------- |
-| `index.html`   | User list, filter, count and pagination UI                    |
-| `details.html` | Selected user's details, followers and repositories           |
-| `style.css`    | Responsive layout, table/cards, loading skeletons and styling |
-| `api.js`       | GitHub API requests and response transformation               |
-| `users.js`     | List-page state, filtering, pagination and rendering          |
-| `details.js`   | Details-page logic and parallel API requests                  |
-| `README.md`    | Project documentation                                         |
-
-
-## Important Implementation Logic
-
-### API Fetching
-
-`api.js` uses `async/await` and checks `response.ok` before processing the response.
-
-```javascript
-const response = await fetch(url);
-
-if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
-}
-```
-
-### Data Transformation
-
-Only the required fields are retained from the GitHub response:
-
-```javascript
-return users.map(user => ({
-    login: user.login,
-    id: user.id,
-    avatar: user.avatar_url
-}));
-```
-
-### Filtering & Pagination
-
-The original fetched array is preserved. Filtering creates a separate filteredUsers array, which is then paginated using slice().
-
-```mermaid
-graph LR
-    users --> filteredUsers --> current_page[current page] --> render
-```
-Five users are displayed per page.
-
-### Parallel Requests
-
-The details page fetches followers and repositories simultaneously:
-
-```javascript
-const [followers, repositories] = await Promise.all([
-    fetchFollowers(username),
-    fetchRepositories(username)
-]);
-```
-### Error & Loading States
-
-The application handles different UI states during API requests:
-
-- **Loading:** A skeleton UI is shown while data is being fetched.
-- **Success:** The skeleton is removed and the fetched data is rendered.
-- **Error:** API/network failures are caught using `try/catch` and a friendly error message is displayed instead of leaving the page blank.
-- **Retry:** The user can retry the request from the error state.
-- **Empty:** A separate message is shown when no users match the applied filter.
-
-The loading skeleton is hidden in the `finally` block so it is removed whether the request succeeds or fails.
-
-```javascript
-try {
-    users = await fetchUsers();
-    renderUsers(users);
-} catch (error) {
-    console.error(error);
-    showError();
-} finally {
-    hideLoading();
-}
-```
-## Design & Responsive Decisions
-
-- Desktop uses a table layout for efficient comparison of users.
-- Mobile converts each user into a card to improve readability on smaller screens.
-- The desktop table does not include a separate action column; the entire row is clickable.
-- Mobile cards include a `View Details` button.
-- Loading skeletons are used instead of leaving the page blank during API requests.
-- The UI includes separate states for loading, error, empty results, and successful results.
-
-## Screenshots
-
-### Desktop User List
-
-![Desktop User List](screenshots/desktop-list.png)
-
-### Mobile User List
-
-**Only Mobile View has the `View Details` button**
-
-
-![Mobile User List](screenshots/mobile-list.png)
-
-### Filtered Users
-
-![Filtered Users](screenshots/filtered-users.png)
-
-
-### User Details
-
-![User Details](screenshots/user-details.png)
-
-### Loading State
-
-![Loading State](screenshots/loading-skeleton.png)
-
-## Setup & Run
-
-### Prerequisites
-
-- A modern web browser
-- VS Code with Live Server (recommended)
-
-### Run Locally
-
-1. Clone the repository.
-2. Open the project in VS Code.
-3. Start the project using Live Server.
-4. Open `index.html` in the browser.
-
-The application uses the GitHub REST API directly, so no backend or environment variables are required.
-
-## Assignment Requirements
-
-| Requirement | Status |
-|---|---|
-| Fetch GitHub users on page load | ✅ |
-| Display fetched user count | ✅ |
-| Use `async/await` | ✅ |
-| Validate API responses | ✅ |
-| Transform API data | ✅ |
-| Filter by minimum login length | ✅ |
-| Display filtered user count | ✅ |
-| Pagination with 5 users per page | ✅ |
-| Loading skeleton | ✅ |
-| Graceful error handling | ✅ |
-| Responsive desktop/mobile layout | ✅ |
-| User details page | ✅ |
-| Fetch first 5 followers | ✅ |
-| Fetch first 5 repositories | ✅ |
-| Parallel requests using `Promise.all()` | ✅ |
-| Back to users functionality | ✅ |
-
-
-
-
-
-
-# Follow up Advanced JavaScript & TypeScript — GitHub Users API
-
-## Overview
-
-This project is a TypeScript migration of the previous **Advanced JS -  GitHub User Explorer** assignment.
-
-The original JavaScript application was migrated to TypeScript while preserving the existing HTML, CSS, UI functionality, GitHub API integration, pagination, filtering, loading states, error handling, and user details functionality.
-
-The application uses the GitHub REST API to:
-
-* Fetch GitHub users.
-* Display users with pagination.
-* Filter users by minimum login length.
-* Display detailed information for a selected user.
-* Fetch the user's first 5 followers.
-* Fetch the user's first 5 repositories.
-* Handle API and application errors gracefully.
-* Display loading skeletons while requests are in progress.
-
-
-# Project Structure
-
-```text
-Advanced JS Assignment/
-│
-├── js/
-│   └── Previously used JS files
-│
-│
-├── css/
-│   └── CSS files
-│
 ├── dist/
-│   └── Compiled JavaScript generated from TypeScript
+│   ├── details.js
+│   ├── repositories.js
+│   ├── users.js
+│   └── ...
 │
 ├── src/
 │   ├── services/
 │   │   └── apiService.ts
 │   │
 │   ├── types/
+│   │   ├── apidomain.ts
 │   │   └── github.ts
 │   │
 │   ├── utils/
 │   │   ├── api.ts
-│   │   └── dom.ts
+│   │   ├── dom.ts
+│   │   └── transformerFunctions.ts
 │   │
-│   ├── users.ts
-│   └── details.ts
+│   ├── details.ts
+│   ├── repositories.ts
+│   └── users.ts
 │
 ├── screenshots/
-│   └── Application screenshots
 │
 ├── index.html
 ├── details.html
+├── repositories.html
 ├── package.json
 ├── package-lock.json
 ├── tsconfig.json
@@ -293,427 +171,274 @@ Advanced JS Assignment/
 
 ### Responsibility of each layer
 
-| File / Folder                | Responsibility                                   |
-| ---------------------------- | ------------------------------------------------ |
-| `src/types/`                 | Contains TypeScript interfaces and utility types |
-| `src/utils/api.ts`           | Generic API request helper                       |
-| `src/utils/dom.ts`           | Reusable typed DOM helper                        |
-| `src/services/apiService.ts` | GitHub-specific API operations                   |
-| `src/users.ts`               | Users page application and UI logic              |
-| `src/details.ts`             | User details page application and UI logic       |
-| `dist/`                      | Compiled JavaScript generated from TypeScript    |
-| `css/`                       | Application styling                              |
-| `index.html`                 | GitHub users list page                           |
-| `details.html`               | User details page                                |
-| `screenshots/`               | Screenshots demonstrating application output     |
+  -------------------------------------------------------------------------
+  File / Folder                         Responsibility
+  ------------------------------------- -----------------------------------
+  `src/types/`                          TypeScript API, display-model, and
+                                        application types
 
----
+  `src/utils/api.ts`                    Generic typed HTTP request helper
 
-# JavaScript to TypeScript Migration
+  `src/utils/dom.ts`                    Reusable typed DOM element helper
 
-The original project was written in JavaScript. The project was migrated to TypeScript while keeping the existing HTML and CSS functionality intact.
+  `src/utils/transformerFunctions.ts`   Converts API models into UI display
+                                        models
 
-The migration included:
+  `src/services/apiService.ts`          GitHub-specific API operations
 
-* Adding TypeScript interfaces for GitHub API responses.
-* Adding explicit types to variables and function parameters.
-* Typing DOM elements.
-* Typing event handlers.
-* Adding application state types.
-* Creating a generic API helper.
-* Creating a reusable `ApiResult<T>` union type.
-* Moving GitHub API logic into an `ApiService` class.
-* Using TypeScript utility types.
-* Separating API, application, DOM, and utility responsibilities.
-* Compiling TypeScript into JavaScript using `tsconfig.json`.
+  `src/users.ts`                        Users page search, sorting,
+                                        pagination, state, and rendering
 
-The browser uses the compiled files from the `dist/` directory rather than executing the `.ts` files directly.
+  `src/repositories.ts`                 Repository search, pagination,
+                                        state, and rendering
 
+  `src/details.ts`                      User details, followers,
+                                        repositories, and independent error
+                                        handling
 
-        TypeScript source
-            ↓
-            tsc
-            ↓
-        Compiled JavaScript
-            ↓
-        Browser will eventually use this
+  `dist/`                               Compiled JavaScript generated by
+                                        TypeScript
 
----
+  `css/`                                Responsive application styling
 
-# TypeScript Configuration
+  `index.html`                          Users page
 
-The project uses `tsconfig.json` to configure TypeScript compilation.
+  `details.html`                        User details page
 
-Important configuration choices include:
+  `repositories.html`                   Repository search page
 
-* `strict: true` — enables strict type checking.
-* `noImplicitAny: true` — prevents variables and parameters from implicitly receiving the `any` type.
-* `rootDir` — identifies the TypeScript source directory.
-* `outDir` — specifies the directory where compiled JavaScript is generated.
-* ES module configuration is used so the compiled JavaScript can use `import` and `export`.
+  `screenshots/`                        Application screenshots
 
-The TypeScript source code is compiled using:
+  `README.md`                           Project documentation
+  -------------------------------------------------------------------------
 
-```bash
-npx tsc
+------------------------------------------------------------------------
+
+# TypeScript Implementation
+
+## Interfaces and Display Models
+
+API responses and UI data use separate types.
+
+The repository search response contains only the fields needed by the
+application, including `total_count` and the repository fields used by
+the UI.
+
+A separate display model is used before rendering:
+
+``` ts
+export interface DisplayRepositorySearch {
+    name: string;
+    description: string | null;
+    owner: string;
+    starCount: number;
+    programmingLanguage: string | null;
+    githubUrl: string;
+}
 ```
 
-The generated JavaScript is placed inside the `dist/` directory.
-        src/
-        └── types/
-            └── github.ts
+This prevents the UI from depending directly on the complete GitHub
+payload.
 
-                ↓ npx tsc
+------------------------------------------------------------------------
 
-        dist/
-        └── types/
-            ├── github.js
-            └── github.js.map
+## Generic API Helper
 
----
+The shared API helper is generic and contains **no GitHub-specific
+logic**.
 
-The HTML pages load the compiled modules:
+It:
 
-```html
-<script type="module" src="./dist/users.js"></script>
+-   Uses `fetch` with `async/await`.
+-   Accepts a URL and reusable request options/domain information.
+-   Checks `response.ok`.
+-   Returns typed API data.
+-   Provides useful error information for HTTP failures.
+-   Handles network failures separately.
+
+The generic helper is reused by `ApiService` for users, followers,
+repositories, and repository search.
+
+------------------------------------------------------------------------
+
+# ApiService
+
+`ApiService` is the only layer responsible for GitHub-specific API
+endpoints.
+
+It provides methods for:
+
+``` ts
+getUsers()
+getFollowers(username)
+getRepositories(username)
+searchRepositories(query, page)
+```
+
+The repository search method builds:
+
+``` text
+/search/repositories?q=<query>&page=<page>&per_page=10
+```
+
+The service does not access the DOM or render UI.
+
+------------------------------------------------------------------------
+
+# Data Transformation
+
+GitHub API data is mapped into smaller UI models before rendering.
+
+``` text
+GitHub API response
+        ↓
+       map()
+        ↓
+Display model
+        ↓
+      render
+```
+
+Examples include:
+
+``` ts
+transformUsers()
+transformRepositories()
+transformRepositorySearchResults()
+```
+
+The repository search transformation produces only the fields required
+by the page.
+
+The original API arrays are not mutated.
+
+------------------------------------------------------------------------
+
+# Users Page --- Search and Sort
+
+The Users page performs search and sorting on the users that are already
+loaded.
+
+``` text
+GitHub API
+    ↓
+30 users loaded
+    ↓
+Search/filter
+    ↓
+Sort
+    ↓
+Render
+```
+
+No API request is made when the user changes the search text or sort
+order.
+
+The source list is preserved and a new derived array is created using
+operations such as `filter()` and `sort()` on a copied array where
+required.
+
+The clarified pagination implementation uses GitHub's `since` parameter
+to request the next set of users.
+
+------------------------------------------------------------------------
+
+# Repository Search
+
+The repository page starts with no API request.
+
+A request is made only after the user submits a non-empty search query.
+
+``` text
+Empty page
+    ↓
+User enters query
+    ↓
+Submit
+    ↓
+Validate query
+    ↓
+ApiService.searchRepositories()
+    ↓
+Transform results
+    ↓
+Render
+```
+
+Each page requests 10 repositories.
+
+Pagination uses:
+
+``` text
+page=1
+page=2
+page=3
+...
 ```
 
 and:
 
-```html
-<script type="module" src="./dist/details.js"></script>
+``` text
+per_page=10
 ```
 
----
+The total number of pages is derived from `total_count`.
 
-# GitHub API Types
+------------------------------------------------------------------------
 
-The GitHub API response models are defined in:
+# Repository Search UI States
 
-```text
-src/types/github.ts
+The page supports all required states.
+
+### Initial state
+
+No repository search is performed when the page first opens.
+
+### Loading
+
+A loading skeleton is displayed while a search request is in progress.
+
+### Success
+
+Repository rows are rendered after successful data transformation.
+
+### Empty results
+
+When the API returns zero items:
+
+``` text
+No repositories found.
 ```
 
-## GitHubUser
+is displayed.
 
-```ts
-export interface GitHubUser {
-    login: string;
-    id: number;
-    avatar_url: string;
-    name?: string | null;
-    public_repos?: number;
-}
-```
+### Empty search query
 
-Optional properties are used where the API response may not provide the value.
+Submitting an empty search does not call the API. A validation message
+is shown and the previous repository results are cleared so the page
+returns to its initial/no-results state.
 
-## GitHubFollower
+### Error
 
-```ts
-export interface GitHubFollower {
-    login: string;
-    id: number;
-    avatar_url: string;
-}
-```
+HTTP/API and network failures are displayed to the user.
 
-## GitHubRepository
+Partial repository results are not rendered when the API request fails.
 
-```ts
-export interface GitHubRepository {
-    id: number;
-    name: string;
-    html_url: string;
-    description: string | null;
-}
-```
+### Loading cleanup
 
----
+The loading skeleton is removed in `finally`, so it is cleared after
+both successful and failed requests.
 
-# Generic API Helper
+------------------------------------------------------------------------
 
-The reusable API helper is located in:
+# User Details and Independent Requests
 
-```text
-src/utils/api.ts
-```
+The User Details page continues to use its existing independent API
+behaviour.
 
-It uses a generic type parameter:
+Followers and repositories are requested together:
 
-```ts
-apiRequest<T>()
-```
-
-This allows the same function to work with different API response types.
-
-For example:
-
-```ts
-apiRequest<GitHubUser[]>(url);
-```
-
-returns:
-
-```ts
-Promise<ApiResult<GitHubUser[]>>
-```
-
-while:
-
-```ts
-apiRequest<GitHubRepository[]>(url);
-```
-
-returns:
-
-```ts
-Promise<ApiResult<GitHubRepository[]>>
-```
-
-The helper also checks:
-
-```ts
-response.ok
-```
-
-before processing the response.
-
-This prevents unsuccessful HTTP responses from being treated as successful data.
-
----
-
-# ApiResult Union Type
-
-The project uses a discriminated union to represent API success and failure:
-
-```ts
-export type ApiResult<T> =
-    | {
-        success: true;
-        data: T;
-    }
-    | {
-        success: false;
-        error: string;
-    };
-```
-
-The `success` property acts as the discriminator.
-
-For a successful request:
-
-```ts
-if (result.success) {
-    result.data;
-}
-```
-
-TypeScript knows that `data` exists.
-
-For a failed request:
-
-```ts
-if (!result.success) {
-    result.error;
-}
-```
-
-TypeScript knows that `error` exists.
-
-This provides type-safe handling of API results without relying on `any`.
-
-       apiRequest<T>()
-        ↓
-       fetch()
-        ↓
-     HTTP successful?
-   ↙                 ↘
- YES                   NO
-  ↓                     ↓
-data                   error
-  ↓                     ↓
-{success: true,  OR  {success: false,
-          data}                error}
-
----
-
-# ApiService
-
-GitHub-specific API operations are separated into:
-
-```text
-src/services/apiService.ts
-```
-
-The `ApiService` provides methods for:
-
-```ts
-getUsers()
-getFollowers(username)
-getRepositories(username)
-```
-
-The service uses the generic `apiRequest<T>()` helper.
-
-For example:
-
-```ts
-async getUsers() {
-    return apiRequest<GitHubUser[]>(
-        `${this.githubApiBaseUrl}/users`
-    );
-}
-```
-
-This keeps API communication separate from DOM manipulation and UI rendering.
-
----
-
-# Dependency Injection
-
-The `ApiService` is passed into application functions rather than being unnecessarily created inside those functions.
-
-Example:
-
-```ts
-const apiService = new ApiService();
-
-loadUsers(apiService);
-```
-
-The function receives the service:
-
-```ts
-async function loadUsers(apiService: ApiService) {
-    const result = await apiService.getUsers();
-}
-```
-
-This makes the application logic less tightly coupled to the service implementation and makes the dependency explicit.
-
----
-
-# DOM Typing
-
-DOM elements are explicitly typed using TypeScript DOM types.
-
-Examples include:
-
-```ts
-HTMLElement
-HTMLInputElement
-HTMLButtonElement
-HTMLImageElement
-HTMLUListElement
-```
-
-A reusable helper is used to retrieve DOM elements with the correct type:
-
-```ts
-getElement<HTMLImageElement>("user-avatar");
-```
-
-This prevents errors where a generic `HTMLElement` is used for an element that requires properties specific to another DOM type.
-
-For example, an `HTMLInputElement` provides:
-
-```ts
-input.value
-```
-
-while an `HTMLImageElement` provides:
-
-```ts
-image.src
-image.alt
-```
-
----
-
-# Application State Types
-
-Application state is explicitly typed.
-
-For example:
-
-```ts
-let users: GitHubUser[] = [];
-let filteredUsers: GitHubUser[] = [];
-```
-
-This ensures that the application cannot accidentally assign unrelated values to the user collections.
-
-Pagination and filter-related values are also explicitly typed.
-
----
-
-# Utility Types and Data Transformation
-
-The application uses TypeScript utility types to avoid unnecessarily duplicating interfaces.
-
-For example:
-
-```ts
-export type DisplayUser = Pick<
-    GitHubUser,
-    "login" | "id" | "avatar_url"
->;
-```
-
-The UI only needs these three properties from the larger `GitHubUser` interface.
-
-Similarly:
-
-```ts
-export type DisplayRepository = Pick<
-    GitHubRepository,
-    "name" | "description"
->;
-```
-
-The repository UI does not need every property returned by GitHub.
-
-API data is transformed before being passed to the UI.
-
-Example:
-
-```ts
-function transformUsers(
-    users: GitHubUser[]
-): DisplayUser[] {
-    return users.map(user => ({
-        login: user.login,
-        id: user.id,
-        avatar_url: user.avatar_url
-    }));
-}
-```
-
-Repositories are transformed in the same way:
-
-```ts
-function transformRepositories(
-    repositories: GitHubRepository[]
-): DisplayRepository[] {
-    return repositories.map(repository => ({
-        name: repository.name,
-        description: repository.description
-    }));
-}
-```
-
-This keeps the UI models focused only on the data required for display.
-
----
-
-# User Details and Parallel Requests
-
-The details page fetches followers and repositories independently.
-
-The requests are started in parallel:
-
-```ts
+``` ts
 const [followers, repositories] =
     await Promise.allSettled([
         apiService.getFollowers(username),
@@ -721,315 +446,345 @@ const [followers, repositories] =
     ]);
 ```
 
-The application then checks the status of each request independently.
+Each result is checked independently.
 
-                    Promise.allSettled
-                          │
-             ┌────────────┴────────────┐
-             ↓                         ↓
-        Followers                  Repositories
-             │                         │
-       check status              check status
-             │                         │
-       check success             check success
-             │                         │
-             ↓                         ↓
-       process independently     process independently
+This allows states such as:
 
-This means a failure in one request does not unnecessarily hide successfully loaded data from the other request.
-
-For example:
-
-```text
-Followers       Failed
-Repositories    Successful
-```
-
-The repositories can still be displayed while an error message is shown for the followers section.
-
----
-
-# Why Promise.allSettled() Was Used
-
-`Promise.all()` is appropriate when all operations are required to succeed.
-
-If one promise rejects, `Promise.all()` rejects the entire operation.
-
-The followers and repositories requests are independent, so this behavior is not ideal for the details page.
-
-`Promise.allSettled()` was chosen because it provides the result of every request independently.
-
-This allows the application to handle:
-
-```text
-Followers       Successful
-Repositories    Successful
-```
-![image](/screenshots/bothsuccessfull.png)
-
-```text
-Followers       Failed
-Repositories    Successful
-```
-![image](/screenshots/Onlyreposuccessfull.png)
-
-```text
+``` text
 Followers       Successful
 Repositories    Failed
 ```
-![image](/screenshots/Onlyfollowersuccessfull.png)
 
-and:
+or:
 
-```text
+``` text
 Followers       Failed
-Repositories    Failed
-```
-![image](/screenshots/bothfail.png)
-
-without unnecessarily discarding successful results.
-
----
-
-# Loading and Error Handling
-
-The application maintains loading skeletons for both the users list and details page.
-
-The loading state is displayed before an API request:
-
-```ts
-showLoading();
+Repositories    Successful
 ```
 
-and removed in a `finally` block:
+without unnecessarily hiding the successful section.
 
-```ts
-finally {
-    hideLoading();
-}
+------------------------------------------------------------------------
+
+# Typed DOM Events
+
+DOM elements are explicitly typed, for example:
+
+``` ts
+const searchInput: HTMLInputElement =
+    getElement("repository-search");
+
+const searchButton: HTMLButtonElement =
+    getElement("repository-search-button");
+
+const searchForm: HTMLFormElement =
+    getElement("repository-search-form");
 ```
 
-Using `finally` ensures that loading UI cleanup occurs whether the operation succeeds or fails.
+The repository search form uses a typed `SubmitEvent`:
 
-## Error handling
-
-Errors are handled at multiple levels.
-
-### HTTP/API errors
-
-The generic API helper checks:
-
-```ts
-response.ok
+``` ts
+searchForm.addEventListener(
+    "submit",
+    (event: SubmitEvent) => {
+        event.preventDefault();
+        // ...
+    }
+);
 ```
 
-and returns:
+Other relevant UI interactions use appropriately typed DOM elements and
+event handlers.
 
-```ts
-{
-    success: false,
-    error: "..."
-}
-```
+------------------------------------------------------------------------
 
-### Independent details requests
+# Error Handling
 
-Followers and repositories are handled independently using `Promise.allSettled()`.
+The application distinguishes between expected API failures and
+unexpected failures.
 
-A failure in one section does not hide successfully loaded data from the other section.
+## HTTP/API error
 
-### Unexpected errors
+When the response is unsuccessful, the API helper returns the API error
+information and the page displays it without rendering a partial list.
 
-Unexpected errors are caught using:
+## Network error
 
-```ts
-try {
-    // application logic
-} catch (error) {
-    console.error(error);
-    showError();
-}
-```
+Network failures are caught by `try/catch` and an appropriate error
+message is displayed.
 
-This prevents failures from being silently ignored.
+## Empty response
 
-    showLoading()
-        ↓
-    validate username/id
-        ↓
-    Promise.allSettled()
-        ↓
-    ┌─────────────────┬──────────────────┐
-    │ followers       │ repositories     │
-    │ success/error   │ success/error    │
-    └─────────────────┴──────────────────┘
-        ↓
-    store data + errors
-        ↓
-    render profile
-        ↓
-    render followers + follower error
-        ↓
-    render repositories + repository error
-        ↓
-    showDetails()
-        ↓
-    finally → hideLoading()
+A successful response with zero repository items is treated as an empty
+state rather than an error.
 
----
+## Details-page independent errors
 
-# Composition Instead of Inheritance
+Followers and repositories are handled independently using
+`Promise.allSettled()`.
 
-The project uses composition instead of inheritance.
+------------------------------------------------------------------------
 
-There is no unnecessary inheritance hierarchy such as:
+# Responsive Design
 
-```ts
-class UsersPage extends ApiService
-```
+The existing visual design was preserved and extended for the repository
+page.
 
-Instead, individual responsibilities are separated and combined through composition.
+### Users page
 
-The application uses:
+-   Desktop: users are displayed as table rows.
+-   Mobile: each user becomes a card.
+-   Mobile cards include a `View Details` action.
 
-```text
-Application Logic
-       │
-       ├── ApiService
-       │      │
-       │      └── apiRequest<T>()
-       │
-       └── DOM helpers
-```
+### Repository page
 
-Responsibilities are separated as follows:
+-   Desktop: repositories are displayed in table rows.
+-   Repository description is displayed beneath the repository name in
+    the same row.
+-   Mobile: repository rows adapt into rectangular card-like layouts.
+-   Every repository includes a `View on GitHub` action.
 
-* `ApiService` handles GitHub API operations.
-* `apiRequest<T>()` handles generic HTTP requests.
-* `dom.ts` handles reusable DOM access.
-* `users.ts` handles users-page application logic.
-* `details.ts` handles user-details application logic.
-* Type definitions are kept in `types/github.ts`.
+No CSS framework or additional library was introduced.
 
-This makes the code easier to maintain and keeps individual components focused on a single responsibility.
+------------------------------------------------------------------------
 
----
+# Screenshots
 
-# Running the Project
+## Users Feature
 
-## 1. Install dependencies
+### Initial User List
 
-If dependencies have not already been installed:
+![Initial User List](screenshots/userlist.png)
 
-```bash
+### User Search
+
+![User Search](screenshots/usersearch.png)
+
+### User Sort
+
+![User Sort](screenshots/usersort.png)
+
+### Filtered Users
+
+![Filtered Users](screenshots/filtered-users.png)
+
+### No Users Found
+
+![No Users Found](screenshots/Nouserfound.png)
+
+### Desktop User List
+
+![Desktop User List](screenshots/desktop-list.png)
+
+### Mobile User List
+
+![Mobile User List](screenshots/mobile-list.png)
+
+### User Fetch Error
+
+![User Fetch Error](screenshots/userfetchfail.png)
+
+------------------------------------------------------------------------
+
+## User Details
+
+### User Details
+
+![User Details](screenshots/user-details.png)
+
+### Followers and Repositories --- Both Successful
+
+![Both Successful](screenshots/bothsuccessfull.png)
+
+### Followers Failed, Repositories Successful
+
+![Only Repositories Successful](screenshots/Onlyreposuccessfull.png)
+
+### Followers Successful, Repositories Failed
+
+![Only Followers Successful](screenshots/Onlyfollowersuccessfull.png)
+
+### Both Requests Failed
+
+![Both Failed](screenshots/bothfail.png)
+
+------------------------------------------------------------------------
+
+## Repository Search Feature
+
+### Initial Repository Page
+
+![Initial Repository Page](screenshots/initialrepopage.png)
+
+### Repository Search
+
+![Repository Search](screenshots/reposearch.png)
+
+### Repository Fetch Error
+
+![Repository Fetch Error](screenshots/repofetchfail.png)
+
+### No Repositories Found
+
+![No Repositories Found](screenshots/NorepoFound.png)
+
+### Loading Skeleton
+
+![Loading Skeleton](screenshots/loading-skeleton.png)
+
+------------------------------------------------------------------------
+
+# Build and Run
+
+## Prerequisites
+
+-   Node.js and npm
+-   A modern web browser
+-   VS Code with Live Server or another local HTTP server
+
+## Install Dependencies
+
+``` bash
 npm install
 ```
 
-## 2. Compile TypeScript
+## Compile TypeScript
 
-From the project root:
-
-```bash
+``` bash
 npx tsc
 ```
 
-This generates the JavaScript files inside:
+The command must complete with **zero TypeScript errors** and generates
+the compiled JavaScript in `dist/`.
 
-```text
-dist/
-```
+## Run the Application
 
-## 3. Run using a local HTTP server
-
-The application should be served through a local development server rather than opened directly using `file://`.
-
-For example, VS Code Live Server can be used.
+Serve the project using a local HTTP server.
 
 Open:
 
-```text
+``` text
 index.html
 ```
 
-through the local server.
+for the Users page.
 
-The browser loads the compiled JavaScript from:
+The repository search page is:
 
-```text
-dist/users.js
+``` text
+repositories.html
 ```
 
-and:
+The browser loads the compiled JavaScript files from `dist/`.
 
-```text
-dist/details.js
-```
+After modifying TypeScript files, compile again:
 
-using ES modules.
-
-## 4. Recompile after TypeScript changes
-
-Whenever a `.ts` file is modified:
-
-```bash
+``` bash
 npx tsc
 ```
 
-Then refresh the application.
+------------------------------------------------------------------------
 
-The `.js` files inside `dist/` are generated files and should not be manually edited.
+# Assignment Requirement Checklist
 
----
+  Requirement                                               Status
+  --------------------------------------------------------- --------
+  Remove minimum login length filter                       | ✅
+  In-place user search                                     | ✅
+  Search by available user field (`login`)                 | ✅
+  A → Z sorting                                            | ✅
+  Z → A sorting                                            | ✅
+  Search and sorting work together                         | ✅
+  No extra API request for user search/sort                | ✅
+  Preserve original API response data                      | ✅
+  Users pagination preserved                               | ✅
+  Pagination implemented using clarified `since` approach  | ✅
+  Clear user empty state                                   | ✅
+  New `repositories.html` page                             | ✅
+  Repository name                                          | ✅
+  Nullable repository description                          | ✅
+  Owner login                                              | ✅
+  Star count                                               | ✅
+  Nullable programming language                            | ✅
+  GitHub repository link                                   | ✅
+  Repository loading state                                 | ✅
+  Repository success state                                 | ✅
+  Repository empty state                                   | ✅
+  Repository error state                                   | ✅
+  Empty search validation                                  | ✅
+  No API request for empty repository query                | ✅
+  HTTP error handling                                      | ✅
+  Network error handling                                   | ✅
+  No partial list on API failure                           | ✅
+  Repository pagination with `page` and `per_page`         | ✅
+  Generic API helper                                       | ✅
+  No GitHub-specific logic in generic helper               | ✅
+  Repository logic kept in `ApiService`                    | ✅
+  API data transformed before rendering                    | ✅
+  Immutable/derived data handling                          | ✅
+  Typed DOM elements                                       | ✅
+  Typed search form event                                  | ✅
+  TypeScript interfaces                                    | ✅
+  Type aliases / union types where appropriate             | ✅
+  Generic API helper                                       | ✅
+  Nullable/optional types                                  | ✅
+  Type narrowing                                           | ✅
+  `async/await`                                            | ✅
+  `try/catch/finally`                                      | ✅
+  User Details page preserved                              | ✅
+  `npx tsc` compiles with zero errors                      | ✅
 
-# Application Features
-
-## Users Page
-
-The users page provides:
-
-* GitHub user listing.
-* Total fetched user count.
-* Minimum login-length filtering.
-* Pagination.
-* Five users per page.
-* Loading skeleton.
-* Empty-state handling.
-* Error handling.
-* Navigation to user details.
-
-## User Details Page
-
-The details page provides:
-
-* Selected user information.
-* User avatar.
-* User ID.
-* First 5 followers.
-* First 5 repositories.
-* Independent follower/repository error handling.
-* Loading skeleton.
-* Empty-state handling.
-
----
+------------------------------------------------------------------------
 
 # Testing
 
-The application was tested after migration to TypeScript.
+The application was tested for the required scenarios.
 
-The following scenarios were verified:
+### Users
 
-* Users load successfully.
-* Pagination works.
-* Login-length filtering works.
-* User details load correctly.
-* Followers load correctly.
-* Repositories load correctly.
-* Loading skeleton appears while requests are in progress.
-* Missing URL parameters trigger the appropriate error handling.
-* Followers can fail without hiding successfully loaded repositories.
-* Repositories can fail without hiding successfully loaded followers.
-* The application loads the compiled JavaScript from `dist/`.
-* ES module imports work correctly in the browser.
+-   Users load successfully.
+-   Search filters the currently loaded users without an API request.
+-   Sorting changes the currently visible order.
+-   Search and sorting work together.
+-   No-match search displays an empty state.
+-   Pagination loads another set of users.
+-   Search/sort behaviour continues after changing pages.
+-   Desktop and mobile layouts were checked.
+-   User API failure displays an error state.
 
----
+### User Details
 
+-   User details load successfully.
+-   Followers load successfully.
+-   Repositories load successfully.
+-   Followers and repositories can fail independently.
+-   Both requests can fail without leaving the page in a loading state.
+-   Loading skeleton is cleared after completion.
+
+### Repository Search
+
+-   Initial page does not make a search request.
+-   Valid search displays repositories.
+-   Repository fields are displayed correctly.
+-   Pagination works using `page` and `per_page=10`.
+-   Empty search is validated without an API request.
+-   Zero-result searches display `No repositories found.`
+-   HTTP/API errors display an error message.
+-   Network errors are caught and displayed.
+-   Partial results are not rendered after an API failure.
+-   Loading skeleton is removed after success and failure.
+
+------------------------------------------------------------------------
+
+# Out of Scope
+
+The implementation intentionally does not add:
+
+-   Authentication or tokens
+-   Rate-limit quota changes
+-   Additional GitHub endpoints beyond the existing Users/Details
+    endpoints and Repository Search
+-   Server-side search for the Users page
+-   New frameworks or libraries
+-   A rewrite of the existing User Details page
+-   Unnecessary TypeScript features that do not solve a real problem
